@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/athlete_profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>
+        {{ current_user.full_name }}
+        <small class="text-muted">(Спортсмен)</small>
+    </h2>
+
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Мой тренер</h5>
+        </div>
+        <div class="card-body">
+            {% if coach %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><strong>{{ coach.full_name }}</strong></span>
+                    <button class="remove-coach-btn" id="removeCoachBtn" title="Отвязаться от тренера">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+            {% else %}
+                <p class="text-muted">Тренер не назначен</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Приглашения</h5>
+        </div>
+        <div class="card-body" id="invitationsContainer">
+            {% if invitations %}
+                {% for inv in invitations %}
+                <div class="invitation-card p-3 mb-2 bg-light rounded" data-id="{{ inv.id }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><strong>{{ inv.coach.full_name }}</strong> хочет стать вашим тренером</div>
+                        <div>
+                            <button class="btn btn-sm btn-success accept-invitation" data-id="{{ inv.id }}">Принять</button>
+                            <button class="btn btn-sm btn-danger decline-invitation" data-id="{{ inv.id }}">Отказать</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">Нет новых приглашений</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Мои программы</h5>
+        </div>
+        <div class="card-body">
+            {% if programs %}
+                <div class="list-group">
+                {% for prog in programs %}
+                    <a href="{{ url_for('calculator.view_program', program_id=prog.id) }}" class="list-group-item list-group-item-action">
+                        <div><strong>{{ prog.name }}</strong><br>
+                        <small class="text-muted">{{ prog.program_date.strftime('%d.%m.%Y') if prog.program_date else 'дата не указана' }} | {{ 'Короткая' if prog.program_type == 'short' else 'Произвольная' }} | {{ 'Одиночное' if prog.discipline == 'singles' else 'Парное' }}</small>
+                        </div>
+                    </a>
+                {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Нет сохранённых программ</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Статистика спортсмена</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label>Период с:</label>
+                    <input type="date" id="statsStartDate" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label>по:</label>
+                    <input type="date" id="statsEndDate" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label>Тип программы:</label>
+                    <select id="statsProgramType" class="form-select">
+                        <option value="all">Все</option>
+                        <option value="short">Короткая</option>
+                        <option value="free">Произвольная</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="stat-card text-center">
+                        <h6>Средний балл за короткую программу</h6>
+                        <div class="stat-value" id="avgShortScore">—</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card text-center">
+                        <h6>Средний балл за произвольную программу</h6>
+                        <div class="stat-value" id="avgFreeScore">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <canvas id="scoreChart" height="200"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <label>Выберите элемент для детальной статистики:</label>
+                    <select id="elementSelect" class="form-select mb-2">
+                        <option value="">Все элементы</option>
+                    </select>
+                    <canvas id="elementChart" height="200"></canvas>
+                </div>
+            </div>
+            <div id="unstableInfo" class="alert alert-info mt-3"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.athleteId = {{ current_user.id }};
+</script>
+<script src="{{ url_for('static', filename='js/athlete_profile.js') }}"></script>
+{% endblock %}

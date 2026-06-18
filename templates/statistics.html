@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/statistics.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Статистика спортсмена: {{ athlete.full_name }}</h2>
+
+    <div class="row mb-3 align-items-end">
+        <div class="col-md-3">
+            <label>Период с:</label>
+            <input type="date" id="statsStartDate" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label>по:</label>
+            <input type="date" id="statsEndDate" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label>Тип программы:</label>
+            <select id="statsProgramType" class="form-select">
+                <option value="all">Все</option>
+                <option value="short">Короткая</option>
+                <option value="free">Произвольная</option>
+            </select>
+        </div>
+        <div class="col-md-3 text-end">
+            <button id="exportStatsCsv" class="btn btn-success">Скачать статистику (CSV)</button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="stat-card text-center">
+                <h6>Средний балл за короткую программу</h6>
+                <div class="stat-value" id="avgShortScore">—</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card text-center">
+                <h6>Средний балл за произвольную программу</h6>
+                <div class="stat-value" id="avgFreeScore">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <canvas id="scoreChart" height="200"></canvas>
+        </div>
+        <div class="col-md-6">
+            <label>Выберите элемент для детальной статистики:</label>
+            <select id="elementSelect" class="form-select mb-2">
+                <option value="">Все элементы</option>
+            </select>
+            <canvas id="elementChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <div id="unstableInfo" class="alert alert-info mt-3"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.athleteId = {{ athlete.id }};
+</script>
+<script src="{{ url_for('static', filename='js/statistics.js') }}"></script>
+{% endblock %}

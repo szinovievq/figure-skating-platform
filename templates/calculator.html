@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/calculator.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Калькулятор программы</h2>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <input type="text" id="programName" class="form-control" placeholder="Название программы">
+        </div>
+        <div class="col-md-6 text-end">
+            {% if current_user.is_authenticated and current_user.role == 'coach' %}
+                <button id="saveProgramBtn" class="btn btn-success me-2">Сохранить</button>
+                <button id="downloadCsvBtn" class="btn btn-secondary">Скачать</button>
+            {% else %}
+                <button id="downloadCsvBtn" class="btn btn-secondary">Скачать</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label>Дисциплина:</label>
+            <select id="disciplineSelect" class="form-select">
+                <option value="singles">Одиночное</option>
+                <option value="pairs">Парное</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>Тип программы:</label>
+            <select id="programTypeSelect" class="form-select">
+                <option value="short">Короткая программа</option>
+                <option value="free">Произвольная программа</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>Фактор:</label>
+            <input type="number" id="componentCoeff" class="form-control coeff-input" step="0.1" value="0.8">
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label>Поиск элемента:</label>
+            <input type="text" id="elementSearch" class="form-control" placeholder="Начните вводить код (3A, 4T, CCoSp4...)">
+            <div id="suggestions" class="list-group mt-1" style="position: absolute; z-index: 1000; width: auto;"></div>
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button id="addElementBtn" class="btn btn-primary w-100">+ Добавить</button>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="elementTabs" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-type="jumps">Прыжки</button></li>
+                <li class="nav-item"><button class="nav-link" data-type="spins">Вращения</button></li>
+                <li class="nav-item"><button class="nav-link" data-type="steps">Дорожки</button></li>
+                <li class="nav-item"><button class="nav-link" data-type="throws">Выбросы</button></li>
+                <li class="nav-item"><button class="nav-link" data-type="twist_lifts">Подкрутки</button></li>
+                <li class="nav-item"><button class="nav-link" data-type="twists">Твизлы</button></li>
+                <li class="nav-item"><button class="nav-link" data-type="lifts">Поддержки</button></li>
+                <li class="nav-item"><button class="nav-link" data-type="death_spirals">Тодес</button></li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div id="controls-panel">
+                        <div id="jumps-panel" style="display: block;">
+                            <label>Обороты:</label>
+                            <div id="turns-buttons" class="d-flex flex-wrap gap-2 mb-2">
+                                <button class="btn btn-outline-secondary turns-btn" data-turns="1">1</button>
+                                <button class="btn btn-outline-secondary turns-btn" data-turns="2">2</button>
+                                <button class="btn btn-outline-secondary turns-btn" data-turns="3">3</button>
+                                <button class="btn btn-outline-secondary turns-btn" data-turns="4">4</button>
+                                <button class="btn btn-outline-secondary turns-btn" data-turns="5">5</button>
+                            </div>
+                            <button id="addJumpToCascadeBtn" class="btn btn-secondary btn-sm mt-2"><i class="fas fa-plus"></i> Добавить прыжок</button>
+                        </div>
+                        <div id="levels-panel" style="display: none;">
+                            <label>Уровень:</label>
+                            <div id="level-buttons" class="d-flex flex-wrap gap-2 mt-2"></div>
+                        </div>
+                        <div id="lift-panel" style="display: none;"></div>
+                        <div id="twist-panel" style="display: none;"></div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div id="elements-list" class="row row-cols-2 row-cols-md-3 g-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="calculator-table">
+            <thead class="table-light"><tr><th>#</th><th>Элемент</th><th>Базовая Стоимость</th><th>GOE</th><th> </th><th>Сумма</th><th></th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 p-3 bg-light rounded">
+        <h5>Оценки за компоненты</h5>
+        <div class="row mb-2">
+            <div class="col-md-6"><label>Мастерство катания (SK):</label><input type="range" class="form-range component-slider" id="compSK" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compSKVal">0.00</span></div>
+            <div class="col-md-6"><label>Переходы (TR):</label><input type="range" class="form-range component-slider" id="compTR" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compTRVal">0.00</span></div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-6"><label>Представление (PE):</label><input type="range" class="form-range component-slider" id="compPE" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compPEVal">0.00</span></div>
+            <div class="col-md-6"><label>Композиция (CO):</label><input type="range" class="form-range component-slider" id="compCO" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compCOVal">0.00</span></div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-6"><label>Интерпретация музыки (IN):</label><input type="range" class="form-range component-slider" id="compIN" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compINVal">0.00</span></div>
+        </div>
+    </div>
+
+    <div class="mt-3 p-3 rounded">
+        <div class="row"><div class="col-md-6 offset-md-6">
+            <table class="table table-sm table-borderless">
+                <tr><td colspan="5"><strong>Оценка за технику:</strong></td><td class="text-end"><strong id="techScore">0.00</strong></td></tr>
+                <tr id="deductionRow" style="display: none;"><td colspan="5"><strong style="color: red;">Снижения:</strong></td><td class="text-end"><strong style="color: red;" id="deductionsAmount">0.00</strong></td></tr>
+                <tr><td colspan="5"><strong>Оценка за компоненты:</strong></td><td class="text-end"><strong id="componentsScore">0.00</strong></td></tr>
+                <tr class="table-active"><td colspan="5"><strong>Итоговая сумма:</strong></td><td class="text-end"><strong id="finalTotal">0.00</strong></td></tr>
+            </table>
+        </div></div>
+    </div>
+</div>
+
+{% if current_user.is_authenticated and current_user.role == 'coach' %}
+<div class="modal fade" id="saveProgramFullModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Сохранить программу</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <form id="saveProgramFullForm">
+                <div class="mb-3"><label>Название программы</label><input type="text" id="save_program_name" class="form-control" required></div>
+                <div class="mb-3"><label>Дата проведения</label><input type="date" id="save_program_date" class="form-control" required></div>
+                <div class="mb-3">
+                    <label>Вид программы</label>
+                    <select id="save_program_discipline" class="form-select" required>
+                        <option value="singles">Одиночное</option>
+                        <option value="pairs">Парное</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Тип программы</label>
+                    <select id="save_program_type" class="form-select" required>
+                        <option value="short">Короткая</option>
+                        <option value="free">Произвольная</option>
+                    </select>
+                </div>
+                <div id="athlete_select_container" class="mb-3" style="display: none;">
+                    <label>Спортсмен</label>
+                    <select id="save_program_athlete" class="form-select">
+                        <option value="">Выберите спортсмена</option>
+                    </select>
+                </div>
+                <div id="partner_select_container" class="mb-3" style="display: none;">
+                    <label>Партнер</label>
+                    <select id="save_program_partner" class="form-select">
+                        <option value="">Выберите партнера</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button><button type="button" class="btn btn-primary" id="confirmSaveFullBtn">Сохранить</button></div>
+    </div></div>
+</div>
+{% endif %}
+
+<div class="modal fade" id="goeModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Выберите GOE</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body text-center"><div id="modalGoeNegative" class="mb-2"></div><div id="modalGoeZero" class="mb-2"></div><div id="modalGoePositive"></div></div>
+    </div></div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Редактирование элемента</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body" id="editModalContent"></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button></div>
+    </div></div>
+</div>
+
+<script>
+    window.userRole = "{{ current_user.role }}";
+    window.coachAthletes = {{ coach_athletes|tojson }};
+    window.isAuthenticated = {{ current_user.is_authenticated|tojson }};
+    window.preselectedAthleteId = new URLSearchParams(window.location.search).get('athlete_id');
+</script>
+<script src="{{ url_for('static', filename='js/calculator/state.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calculator/helpers.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calculator/elements-panel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calculator/table.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calculator/modals.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calculator/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,28 @@
+.program-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.info-row {
+    display: flex;
+    margin-bottom: 8px;
+}
+.info-label {
+    width: 180px;
+    font-weight: bold;
+}
+.info-value {
+    flex: 1;
+}
+.score-table {
+    font-size: 0.95rem;
+}
+.score-table th,
+.score-table td {
+    text-align: center;
+}
+.score-table td:first-child,
+.score-table th:first-child {
+    text-align: left;
+}

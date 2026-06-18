@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Регистрация</h4>
+            </div>
+            <div class="card-body">
+                <form id="registerForm">
+                    <div class="form-group row mb-3">
+                        <label for="username" class="col-sm-4 col-form-label">Логин:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <div class="invalid-feedback" id="usernameError"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="full_name" class="col-sm-4 col-form-label">ФИО:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                            <div class="invalid-feedback" id="fullNameError"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="birth_date" class="col-sm-4 col-form-label">Дата рождения:</label>
+                        <div class="col-sm-8">
+                            <input type="date" class="form-control" id="birth_date" name="birth_date" required>
+                            <div class="invalid-feedback" id="birthDateError"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="password" class="col-sm-4 col-form-label">Пароль:</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="invalid-feedback" id="passwordError"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="confirm_password" class="col-sm-4 col-form-label">Подтверждение пароля:</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            <div class="invalid-feedback" id="confirmPasswordError"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="role" class="col-sm-4 col-form-label">Роль:</label>
+                        <div class="col-sm-8">
+                            <select class="form-select" id="role" name="role" required>
+                                <option value="athlete">Спортсмен</option>
+                                <option value="coach">Тренер</option>
+                            </select>
+                            <div class="invalid-feedback" id="roleError"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-8 offset-sm-4">
+                            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center mt-5">
+    <h1>Добро пожаловать!</h1>
+    <p>Цифровая платформа для фигурного катания, созданная, чтобы превратить подготовку программ в удобный и вдохновляющий процесс.
+        Здесь тренеры и спортсмены могут моделировать любые элементы, мгновенно получать расчеты баллов и отслеживать прогресс в реальном времени. </p>
+    <a href="{{ url_for('calculator.calculator') }}" class="btn btn-lg btn-primary">Калькулятор</a>
+    {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-secondary">Войти</a>
+    {% endif %}
+</div>
+{% endblock %}
