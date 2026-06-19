@@ -7,21 +7,23 @@
 <div class="container mt-4">
     <h2>Калькулятор программы</h2>
 
-    <div class="row mb-3">
+    <div class="row mb-3 gy-2">
         <div class="col-md-6">
             <input type="text" id="programName" class="form-control" placeholder="Название программы">
         </div>
-        <div class="col-md-6 text-end">
-            {% if current_user.is_authenticated and current_user.role == 'coach' %}
-                <button id="saveProgramBtn" class="btn btn-success me-2">Сохранить</button>
-                <button id="downloadCsvBtn" class="btn btn-secondary">Скачать</button>
-            {% else %}
-                <button id="downloadCsvBtn" class="btn btn-secondary">Скачать</button>
-            {% endif %}
+        <div class="col-md-6 text-md-end">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                {% if current_user.is_authenticated and current_user.role == 'coach' %}
+                    <button id="saveProgramBtn" class="btn btn-success">Сохранить</button>
+                    <button id="downloadCsvBtn" class="btn btn-secondary">Скачать</button>
+                {% else %}
+                    <button id="downloadCsvBtn" class="btn btn-secondary">Скачать</button>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-    <div class="row mb-3">
+    <div class="row mb-3 gy-2">
         <div class="col-md-4">
             <label>Дисциплина:</label>
             <select id="disciplineSelect" class="form-select">
@@ -37,19 +39,19 @@
             </select>
         </div>
         <div class="col-md-4">
-            <label>Фактор:</label>
-            <input type="number" id="componentCoeff" class="form-control coeff-input" step="0.1" value="0.8">
+            <label>Коэффициент компонентов:</label>
+            <input type="number" id="componentCoeff" class="form-control coeff-input" step="0.1" value="1.0">
         </div>
     </div>
 
-    <div class="row mb-3">
+    <div class="row mb-3 gy-2 align-items-end">
         <div class="col-md-6">
             <label>Поиск элемента:</label>
             <input type="text" id="elementSearch" class="form-control" placeholder="Начните вводить код (3A, 4T, CCoSp4...)">
             <div id="suggestions" class="list-group mt-1" style="position: absolute; z-index: 1000; width: auto;"></div>
         </div>
         <div class="col-md-2 align-self-end">
-            <button id="addElementBtn" class="btn btn-primary w-100">+ Добавить</button>
+            <button id="addElementBtn" class="btn btn-primary w-100 mt-2 mt-md-0">+ Добавить</button>
         </div>
     </div>
 
@@ -67,7 +69,7 @@
             </ul>
         </div>
         <div class="card-body">
-            <div class="row">
+            <div class="row gy-2">
                 <div class="col-md-3">
                     <div id="controls-panel">
                         <div id="jumps-panel" style="display: block;">
@@ -79,7 +81,7 @@
                                 <button class="btn btn-outline-secondary turns-btn" data-turns="4">4</button>
                                 <button class="btn btn-outline-secondary turns-btn" data-turns="5">5</button>
                             </div>
-                            <button id="addJumpToCascadeBtn" class="btn btn-secondary btn-sm mt-2"><i class="fas fa-plus"></i> Добавить прыжок</button>
+                            <button id="addJumpToCascadeBtn" class="btn btn-secondary btn-sm mt-2 w-100"><i class="fas fa-plus"></i> Добавить прыжок</button>
                         </div>
                         <div id="levels-panel" style="display: none;">
                             <label>Уровень:</label>
@@ -98,29 +100,30 @@
 
     <div style="overflow-x: auto;">
         <table class="calculator-table">
-            <thead class="table-light"><tr><th>#</th><th>Элемент</th><th>Базовая Стоимость</th><th>GOE</th><th> </th><th>Сумма</th><th></th></tr></thead>
+            <thead class="table-light"><tr><th>#</th><th>Элемент</th><th>BV</th><th>GOE</th><th>x</th><th>Сумма</th><th></th></tr></thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
 
     <div class="mt-4 p-3 bg-light rounded">
         <h5>Оценки за компоненты</h5>
-        <div class="row mb-2">
-            <div class="col-md-6"><label>Мастерство катания (SK):</label><input type="range" class="form-range component-slider" id="compSK" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compSKVal">0.00</span></div>
-            <div class="col-md-6"><label>Переходы (TR):</label><input type="range" class="form-range component-slider" id="compTR" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compTRVal">0.00</span></div>
+        <div class="row gy-2">
+            <div class="col-md-6"><label>SK (Skating Skills):</label><input type="range" class="form-range component-slider" id="compSK" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compSKVal">0.00</span></div>
+            <div class="col-md-6"><label>TR (Transitions):</label><input type="range" class="form-range component-slider" id="compTR" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compTRVal">0.00</span></div>
         </div>
-        <div class="row mb-2">
-            <div class="col-md-6"><label>Представление (PE):</label><input type="range" class="form-range component-slider" id="compPE" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compPEVal">0.00</span></div>
-            <div class="col-md-6"><label>Композиция (CO):</label><input type="range" class="form-range component-slider" id="compCO" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compCOVal">0.00</span></div>
+        <div class="row gy-2">
+            <div class="col-md-6"><label>PE (Performance):</label><input type="range" class="form-range component-slider" id="compPE" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compPEVal">0.00</span></div>
+            <div class="col-md-6"><label>CO (Composition):</label><input type="range" class="form-range component-slider" id="compCO" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compCOVal">0.00</span></div>
         </div>
-        <div class="row mb-2">
-            <div class="col-md-6"><label>Интерпретация музыки (IN):</label><input type="range" class="form-range component-slider" id="compIN" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compINVal">0.00</span></div>
+        <div class="row gy-2">
+            <div class="col-md-6"><label>IN (Interpretation):</label><input type="range" class="form-range component-slider" id="compIN" min="0" max="10" step="0.25" value="0"><span class="component-value" id="compINVal">0.00</span></div>
         </div>
     </div>
 
     <div class="mt-3 p-3 rounded">
         <div class="row"><div class="col-md-6 offset-md-6">
             <table class="table table-sm table-borderless">
+                <tr><td colspan="5"><strong>Итоговая сумма (без снижений):</strong></td><td class="text-end"><strong id="totalSum">0.00</strong></td></tr>
                 <tr><td colspan="5"><strong>Оценка за технику:</strong></td><td class="text-end"><strong id="techScore">0.00</strong></td></tr>
                 <tr id="deductionRow" style="display: none;"><td colspan="5"><strong style="color: red;">Снижения:</strong></td><td class="text-end"><strong style="color: red;" id="deductionsAmount">0.00</strong></td></tr>
                 <tr><td colspan="5"><strong>Оценка за компоненты:</strong></td><td class="text-end"><strong id="componentsScore">0.00</strong></td></tr>
@@ -138,32 +141,10 @@
             <form id="saveProgramFullForm">
                 <div class="mb-3"><label>Название программы</label><input type="text" id="save_program_name" class="form-control" required></div>
                 <div class="mb-3"><label>Дата проведения</label><input type="date" id="save_program_date" class="form-control" required></div>
-                <div class="mb-3">
-                    <label>Вид программы</label>
-                    <select id="save_program_discipline" class="form-select" required>
-                        <option value="singles">Одиночное</option>
-                        <option value="pairs">Парное</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label>Тип программы</label>
-                    <select id="save_program_type" class="form-select" required>
-                        <option value="short">Короткая</option>
-                        <option value="free">Произвольная</option>
-                    </select>
-                </div>
-                <div id="athlete_select_container" class="mb-3" style="display: none;">
-                    <label>Спортсмен</label>
-                    <select id="save_program_athlete" class="form-select">
-                        <option value="">Выберите спортсмена</option>
-                    </select>
-                </div>
-                <div id="partner_select_container" class="mb-3" style="display: none;">
-                    <label>Партнер</label>
-                    <select id="save_program_partner" class="form-select">
-                        <option value="">Выберите партнера</option>
-                    </select>
-                </div>
+                <div class="mb-3"><label>Вид программы</label><select id="save_program_discipline" class="form-select" required><option value="singles">Одиночное</option><option value="pairs">Парное</option></select></div>
+                <div class="mb-3"><label>Тип программы</label><select id="save_program_type" class="form-select" required><option value="short">Короткая</option><option value="free">Произвольная</option></select></div>
+                <div id="athlete_select_container" class="mb-3" style="display: none;"><label>Спортсмен</label><select id="save_program_athlete" class="form-select"><option value="">Выберите спортсмена</option></select></div>
+                <div id="partner_select_container" class="mb-3" style="display: none;"><label>Партнёр (для парного катания)</label><select id="save_program_partner" class="form-select"><option value="">Выберите партнёра</option></select></div>
             </form>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button><button type="button" class="btn btn-primary" id="confirmSaveFullBtn">Сохранить</button></div>

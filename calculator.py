@@ -32,8 +32,22 @@ def api_elements():
     if q:
         query = query.filter(Element.element_code.ilike(f'{q}%'))
     elements = query.limit(20).all()
-    return jsonify(
-        [{'code': e.element_code, 'description': e.description, 'base_value': e.base_value} for e in elements])
+    result = []
+    for e in elements:
+        code = e.element_code
+        category = None
+        if any(code.endswith(x) for x in ['A', 'T', 'S', 'Lo', 'F', 'Lz', 'Eu']) and not any(
+                x in code for x in ['Th', 'SqTw', 'Li', 'BoDs', 'FiDs', 'FoDs', 'BiDs', 'Tw']):
+            category = 'jump'
+        elif 'Th' in code:
+            category = 'throw'
+        result.append({
+            'code': e.element_code,
+            'description': e.description,
+            'base_value': e.base_value,
+            'category': category
+        })
+    return jsonify(result)
 
 
 @calculator_bp.route('/api/elements_by_type')

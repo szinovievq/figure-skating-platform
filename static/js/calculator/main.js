@@ -109,12 +109,12 @@ function addElementFromSearch() {
 
 function downloadCsv() {
     const rows = [];
-    rows.push(['#', 'Элемент', 'База', 'GOE', 'x', 'Сумма']);
+    rows.push(['#', 'Элемент', 'BV', 'GOE', ' ', 'Сумма']);
     currentElements.forEach((el, idx) => {
-        rows.push([
+    rows.push([
             idx+1,
             getDisplayCode(el),
-            el.base.toFixed(2).replace('.', ','),
+            getModifiedBaseForDisplay(el).toFixed(2).replace('.', ','),
             el.goe || 0,
             el.second_half ? 'x' : '',
             calculateTotal(el).toFixed(2).replace('.', ',')
@@ -137,7 +137,7 @@ function downloadCsv() {
     rows.push([]);
     rows.push(['Компоненты:', 'SK', 'TR', 'PE', 'CO', 'IN']);
     rows.push(['Оценки', sk.toFixed(2).replace('.', ','), tr.toFixed(2).replace('.', ','), pe.toFixed(2).replace('.', ','), co.toFixed(2).replace('.', ','), inVal.toFixed(2).replace('.', ',')]);
-    rows.push(['Коэффициент', '', '', '', '', $('#componentCoeff').val().toString().replace('.', ',')]);
+    rows.push(['Фактор', '', '', '', '', $('#componentCoeff').val().toString().replace('.', ',')]);
 
     const csvContent = rows.map(row => row.join(';')).join('\n');
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });

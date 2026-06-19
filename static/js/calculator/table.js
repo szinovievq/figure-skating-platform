@@ -3,6 +3,7 @@ function renderTable() {
     tbody.empty();
     currentElements.forEach((el, idx) => {
         let totalPoints = calculateTotal(el);
+        let modifiedBase = getModifiedBaseForDisplay(el);
         let goeValue = 0;
         if (el.isCascade && el.parts) {
             goeValue = getCascadeDisplayGoe(el);
@@ -17,7 +18,7 @@ function renderTable() {
         let row = `<tr>
             <td>${idx+1}</td>
             <td><strong>${displayCode}</strong><br><small class="text-muted">${el.desc}</small></td>
-            <td>${el.base.toFixed(2)}</td>
+            <td>${modifiedBase.toFixed(2)}</td>   <!-- изменено: вместо el.base -->
             <td>${goeButton}</td>
             <td>${xButton}</td>
             <td class="fw-bold">${totalPoints.toFixed(2)}</td>

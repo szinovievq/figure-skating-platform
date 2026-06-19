@@ -1,13 +1,13 @@
 function getCleanName(elementCode, description) {
     if (elementCode.match(/[A-Za-z]+$/)) {
         let match = elementCode.match(/[A-Za-z]+$/)[0];
-        if (match === 'A') return 'Аксель';
-        if (match === 'T') return 'Тулуп';
-        if (match === 'S') return 'Сальхов';
-        if (match === 'Lo') return 'Риттбергер';
-        if (match === 'F') return 'Флип';
-        if (match === 'Lz') return 'Лутц';
-        if (match === 'Eu') return 'Ойлер';
+        if (match === 'A') return 'Axel';
+        if (match === 'T') return 'Toeloop';
+        if (match === 'S') return 'Salchow';
+        if (match === 'Lo') return 'Loop';
+        if (match === 'F') return 'Flip';
+        if (match === 'Lz') return 'Lutz';
+        if (match === 'Eu') return 'Euler';
         return match;
     }
     return elementCode.replace(/[0-9]+$/, '');
@@ -60,28 +60,103 @@ function getDisplayCode(element) {
     }
 }
 
+function getCategoryFromCode(code) {
+    if (!code) return null;
+    if (code.endsWith('Th')) return 'throw';
+    if (/^\d+[A|T|S|Lo|F|Lz|Eu]$/.test(code)) return 'jump';
+    return null;
+}
+
+function getElementBaseByCode(code) {
+    for (let type in allElementsByType) {
+        let found = allElementsByType[type].find(el => el.code === code);
+        if (found) return found.base_value;
+    }
+    return null;
+}
+
+function applyJumpThrowModifiers(base, item) {
+    let hasUnderrot = item.underrotation;
+    let hasWrongEdge = (item.edge === 'e');
+    let category = item.category || getCategoryFromCode(item.code);
+    let isThrow = (category === 'throw');
+    let isJump = (category === 'jump');
+
+    if (hasUnderrot === '<<') {
+        let code = item.code;
+        let turns = parseInt(code.charAt(0));
+        if (!isNaN(turns)) {
+            let newTurns = turns - 1;
+            if (newTurns <= 0) {
+                base = 0;
+            } else {
+                let basePart = code.slice(1);
+                let newCode = newTurns + basePart;
+                let foundBase = getElementBaseByCode(newCode);
+                if (foundBase !== null) {
+                    base = foundBase;
+                }
+            }
+        }
+        if (hasWrongEdge) {
+            base *= 0.8;
+        }
+        return base;
+    }
+    if (hasUnderrot === '<') {
+        if (isThrow) {
+            base *= 0.75;
+        } else {
+            base *= 0.8;
+        }
+
+        if (hasWrongEdge && isJump) {
+            base *= 0.75;
+        }
+
+        return base;
+    }
+
+    if (hasWrongEdge) {
+        if (isJump) {
+            base *= 0.8;
+        }
+    }
+    return base;
+}
+
 function calculateModifiedBase(item) {
     let base = item.base;
-    let mult = 1.0;
-    if (item.underrotation === '<') mult = 0.7;
-    if (item.underrotation === '<<') mult = 0.3;
-    if (item.edge === 'e') mult *= 0.8;
-    let effectiveBase = base * mult;
+    let category = item.category || getCategoryFromCode(item.code);
+    if (category === 'jump' || category === 'throw') {
+        base = applyJumpThrowModifiers(base, item);
+    } else {
+        let mult = 1.0;
+        if (item.underrotation === '<') mult = 0.7;
+        if (item.underrotation === '<<') mult = 0.3;
+        if (item.edge === 'e') mult *= 0.8;
+        base *= mult;
+    }
     if (item.invalid) return 0;
-    return effectiveBase;
+    return base;
 }
 
 function calculateSingleTotal(item, secondHalf) {
     let base = item.base;
     if (secondHalf) base *= 1.1;
-    let mult = 1.0;
-    if (item.underrotation === '<') mult = 0.7;
-    if (item.underrotation === '<<') mult = 0.3;
-    if (item.edge === 'e') mult *= 0.8;
-    let effectiveBase = base * mult;
+    let category = item.category || getCategoryFromCode(item.code);
+    if (category === 'jump' || category === 'throw') {
+        base = applyJumpThrowModifiers(base, item);
+    } else {
+        let mult = 1.0;
+        if (item.underrotation === '<') mult = 0.7;
+        if (item.underrotation === '<<') mult = 0.3;
+        if (item.edge === 'e') mult *= 0.8;
+        base *= mult;
+    }
     if (item.invalid) return 0;
-    let goeBonus = effectiveBase * (item.goe || 0) * 0.1;
-    return effectiveBase + goeBonus;
+    let goeBonus = base * (item.goe || 0) * 0.1;
+    return base + goeBonus;
 }
 
 function getMostExpensivePartIndex(parts) {
@@ -150,4 +225,16 @@ function countFalls() {
         }
     }
     return falls;
+}
+
+function getModifiedBaseForDisplay(element) {
+    if (element.isCascade && element.parts) {
+        let total = 0;
+        for (let part of element.parts) {
+            total += calculateModifiedBase(part);
+        }
+        return total;
+    } else {
+        return calculateModifiedBase(element);
+    }
 }
