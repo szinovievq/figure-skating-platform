@@ -18,19 +18,16 @@
     <h4>Элементы программы</h4>
     <div style="overflow-x: auto;">
         <table class="calculator-table score-table">
-            <thead><tr><th>#</th><th>Элемент</th><th>База</th><th>GOE</th><th>x</th><th>Сумма</th></tr></thead>
+            <thead><tr><th>#</th><th>Элемент</th><th>BV</th><th>GOE</th><th> </th><th>Сумма</th></tr></thead>
             <tbody>
                 {% for elem in elements %}
                 <tr>
                     <td>{{ loop.index }}</td>
-                    <td><strong>{{ elem.element_code }}</strong>
-                        {% if elem.underrotation %}<span class="badge bg-secondary">{{ elem.underrotation }}</span>{% endif %}
-                        {% if elem.edge %}<span class="badge bg-info">{{ elem.edge }}</span>{% endif %}
-                        {% if elem.q %}<span class="badge bg-warning">q</span>{% endif %}
-                        {% if elem.invalid %}<span class="badge bg-danger">*</span>{% endif %}
+                    <td>
+                        <strong>{{ elem.element_code }}</strong>
                         {% if elem.fall %}<span class="badge bg-dark">FALL</span>{% endif %}
                     </td>
-                    <td>{{ elem.base_value_snapshot }}</td>
+                    <td>{{ "%.2f"|format(elem.base_value_snapshot) }}</td>
                     <td>{{ elem.goe }}</td>
                     <td>{{ 'x' if elem.second_half else '' }}</td>
                     <td class="fw-bold">{{ "%.2f"|format(elem.total_points) }}</td>
@@ -45,20 +42,17 @@
             <div class="col-md-6 offset-md-6">
                 <table class="table table-sm table-borderless">
                     <tr>
-                        <td colspan="5"><strong>Итоговая сумма (без снижений):</strong></td>
-                        <td class="text-end"><strong>{{ "%.2f"|format(program.total_score + program.deductions - program.components_score) }}</strong></td>
-                    </tr>
-                    <tr>
                         <td colspan="5"><strong>Оценка за технику:</strong></td>
                         <td class="text-end"><strong>{{ "%.2f"|format(program.total_score + program.deductions - program.components_score) }}</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="5"><strong>Оценка за компоненты:</strong></td>
+                        <td class="text-end"><strong>{{ "%.2f"|format(program.components_score) }}</strong></td>
                     </tr>
                     <tr>
                         <td colspan="5"><strong>Снижения:</strong></td>
                         <td class="text-end"><strong>{{ "%.2f"|format(program.deductions) }}</strong></td>
-                    </tr>
-                    <tr>
-                        <td colspan="5"><strong>Оценка за компоненты:</strong></td>
-                        <td class="text-end"><strong>{{ "%.2f"|format(program.components_score) }}</strong></td>
                     </tr>
                     <tr class="table-active">
                         <td colspan="5"><strong>Итоговая сумма:</strong></td>

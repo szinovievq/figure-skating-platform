@@ -54,7 +54,8 @@ function addElementFromSearch() {
                         second_half: false,
                         isCascade: true,
                         parts: partsData,
-                        category: 'cascade'
+                        category: 'cascade',
+                        goe: 0
                     });
                     renderTable();
                     $('#elementSearch').val('');
@@ -111,11 +112,11 @@ function downloadCsv() {
     const rows = [];
     rows.push(['#', 'Элемент', 'BV', 'GOE', ' ', 'Сумма']);
     currentElements.forEach((el, idx) => {
-    rows.push([
+        rows.push([
             idx+1,
             getDisplayCode(el),
             getModifiedBaseForDisplay(el).toFixed(2).replace('.', ','),
-            el.goe || 0,
+            el.isCascade ? getCascadeDisplayGoe(el) : (el.goe || 0),
             el.second_half ? 'x' : '',
             calculateTotal(el).toFixed(2).replace('.', ',')
         ]);
@@ -126,8 +127,8 @@ function downloadCsv() {
     const deductions = parseFloat($('#deductionsAmount').text()) || 0;
     const totalScore = parseFloat($('#finalTotal').text()) || 0;
     rows.push(['Оценка за технику', '', '', '', '', techScore.toFixed(2).replace('.', ',')]);
-    rows.push(['Снижения', '', '', '', '', deductions.toFixed(2).replace('.', ',')]);
     rows.push(['Оценка за компоненты', '', '', '', '', compScore.toFixed(2).replace('.', ',')]);
+    rows.push(['Снижения', '', '', '', '', deductions.toFixed(2).replace('.', ',')]);
     rows.push(['Итоговая сумма', '', '', '', '', totalScore.toFixed(2).replace('.', ',')]);
     const sk = parseFloat($('#compSK').val()) || 0;
     const tr = parseFloat($('#compTR').val()) || 0;
@@ -228,10 +229,10 @@ $(document).ready(function() {
         }
 
         const elementsData = currentElements.map(el => ({
-            code: el.code,
-            base: el.base,
+            code: getDisplayCode(el),
+            base: getModifiedBaseForDisplay(el),
             multiplier: el.base_multiplier || 1.0,
-            goe: el.goe,
+            goe: el.isCascade ? getCascadeDisplayGoe(el) : (el.goe || 0),
             second_half: el.second_half,
             fall: el.fall,
             underrotation: el.underrotation,

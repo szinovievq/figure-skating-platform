@@ -1,13 +1,13 @@
 function getCleanName(elementCode, description) {
     if (elementCode.match(/[A-Za-z]+$/)) {
         let match = elementCode.match(/[A-Za-z]+$/)[0];
-        if (match === 'A') return 'Axel';
-        if (match === 'T') return 'Toeloop';
-        if (match === 'S') return 'Salchow';
-        if (match === 'Lo') return 'Loop';
-        if (match === 'F') return 'Flip';
-        if (match === 'Lz') return 'Lutz';
-        if (match === 'Eu') return 'Euler';
+        if (match === 'A') return 'Аксель';
+        if (match === 'T') return 'Тулуп';
+        if (match === 'S') return 'Сальхов';
+        if (match === 'Lo') return 'Риттбергер';
+        if (match === 'F') return 'Флип';
+        if (match === 'Lz') return 'Лутц';
+        if (match === 'Eu') return 'Ойлер';
         return match;
     }
     return elementCode.replace(/[0-9]+$/, '');
